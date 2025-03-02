@@ -1,57 +1,67 @@
-def guard_position(arr):
+import sys
+from typing import List, Tuple
+
+sys.setrecursionlimit(100000)
+
+
+def guard_position(arr: List[List[str]]) -> Tuple[int, int]:
     for y, row in enumerate(arr):
         for x, _ in enumerate(row):
             if arr[y][x] in {"<", ">", "^", "v"}:
-                return x, y
+                return (x, y)
 
 
-def guard_direction(arr):
+def guard_direction(arr: List[List[str]]) -> Tuple[int, int]:
     for y, row in enumerate(arr):
         for x, _ in enumerate(row):
             match arr[y][x]:
-                case "<":
+                case "<":  # left
                     return (-1, 0)
-                case ">":
+                case ">":  # right
                     return (1, 0)
-                case "^":
-                    return (0, 1)
-                case "v":
+                case "^":  # up
                     return (0, -1)
+                case "v":  # down
+                    return (0, 1)
 
 
-def turn_90(x_dir, y_dir):
+def turn_90(x_dir: int, y_dir: int) -> Tuple[int, int]:
     match (x_dir, y_dir):
-        case (0, 1):
+        case (0, -1):  # up to right
             return (1, 0)
-        case (1, 0):
-            return (0, -1)
-        case (0, -1):
-            return (-1, 0)
-        case (-1, 0):
+        case (1, 0):  # right to down
             return (0, 1)
+        case (0, 1):  # down to left
+            return (-1, 0)
+        case (-1, 0):  # left to up
+            return (0, -1)
 
 
-def walk(arr, x, y, x_dir, y_dir, count):
-    if y == len(arr) - 1 or x == len(arr[0]) - 1:
+def walk(
+    arr: List[List[str]], x: int, y: int, x_dir: int, y_dir: int, count: int
+) -> int:
+    if y == 0 or y == len(arr) - 1 or x == 0 or x == len(arr) - 1:
+        # guard is leaving the mapped area
         return count
     if arr[y + y_dir][x + x_dir] == "#":
+        # guard turned 90 degrees after reaching obstacle
         x_dir, y_dir = turn_90(x_dir, y_dir)
+        return walk(arr, x, y, x_dir, y_dir, count)
     elif arr[y + y_dir][x + x_dir] == "X":
-        walk(arr, x + x_dir, y + y_dir, x_dir, y_dir, count)
+        # guard already visited this position
+        return walk(arr, x + x_dir, y + y_dir, x_dir, y_dir, count)
     elif arr[y + y_dir][x + x_dir] == ".":
+        # guard visited this position for the first time
         arr[y + y_dir][x + x_dir] = "X"
-        print(
-            f"guard: {arr[y][x]}, x: {x + x_dir}, y: {y + y_dir}, x_dir: {x_dir}, y_dir: {y_dir}, count: {count+1}"
-        )
-        walk(arr, x + x_dir, y + y_dir, x_dir, y_dir, count + 1)
-    else:
-        print("Unexpected event")
+        # print(f"x: {x + x_dir}, y: {y + y_dir}, x_dir: {x_dir}, y_dir: {y_dir}, count: {count+1}")
+        return walk(arr, x + x_dir, y + y_dir, x_dir, y_dir, count + 1)
 
 
-with open("example", "r") as f:
+with open("input", "r") as f:
     arr = [list(_.strip()) for _ in f.readlines()]
+    # find the position and direction of the guard
     x, y = guard_position(arr)
     x_dir, y_dir = guard_direction(arr)
-    print(f"guard: {arr[y][x]}, x: {x}, y: {y}, x_dir: {x_dir}, y_dir: {y_dir}")
     arr[y][x] = "X"
+    # print the result
     print(walk(arr, x, y, x_dir, y_dir, 1))
