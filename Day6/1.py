@@ -4,14 +4,14 @@ from typing import List, Tuple
 sys.setrecursionlimit(100000)
 
 
-def guard_position(arr: List[List[str]]) -> Tuple[int, int]:
+def guard_position(arr: List[List[str]]):
     for y, row in enumerate(arr):
         for x, _ in enumerate(row):
             if arr[y][x] in {"<", ">", "^", "v"}:
                 return (x, y)
 
 
-def guard_direction(arr: List[List[str]]) -> Tuple[int, int]:
+def guard_direction(arr: List[List[str]]):
     for y, row in enumerate(arr):
         for x, _ in enumerate(row):
             match arr[y][x]:
@@ -25,7 +25,7 @@ def guard_direction(arr: List[List[str]]) -> Tuple[int, int]:
                     return (0, 1)
 
 
-def turn_90(x_dir: int, y_dir: int) -> Tuple[int, int]:
+def turn_90(x_dir: int, y_dir: int):
     match (x_dir, y_dir):
         case (0, -1):  # up to right
             return (1, 0)
@@ -37,9 +37,7 @@ def turn_90(x_dir: int, y_dir: int) -> Tuple[int, int]:
             return (0, -1)
 
 
-def walk(
-    arr: List[List[str]], x: int, y: int, x_dir: int, y_dir: int, count: int
-) -> int:
+def walk(arr: List[List[str]], x: int, y: int, x_dir: int, y_dir: int, count: int):
     if y == 0 or y == len(arr) - 1 or x == 0 or x == len(arr) - 1:
         # guard is leaving the mapped area
         return count
@@ -57,11 +55,9 @@ def walk(
         return walk(arr, x + x_dir, y + y_dir, x_dir, y_dir, count + 1)
 
 
-with open("input", "r") as f:
+with open("example", "r") as f:
     arr = [list(_.strip()) for _ in f.readlines()]
-    # find the position and direction of the guard
     x, y = guard_position(arr)
     x_dir, y_dir = guard_direction(arr)
     arr[y][x] = "X"
-    # print the result
     print(walk(arr, x, y, x_dir, y_dir, 1))
